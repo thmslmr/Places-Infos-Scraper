@@ -1,3 +1,3 @@
 # Python-Places-Scrapper
 
-    pip install python-google-place wikipedia
+    pip install python-google-places wikipedia
