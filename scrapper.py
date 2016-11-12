@@ -71,7 +71,7 @@ class PlacesScrapper :
             except KeyError :
                 google_infos[el] = False
         google_infos['name'] = name;
-        return infos
+        return google_infos
 
     def getWikipediaInfos(self, name):
         """
