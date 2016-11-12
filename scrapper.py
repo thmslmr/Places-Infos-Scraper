@@ -109,9 +109,14 @@ class PlacesScrapper :
             return facebook_info
 
         target_page = getMaxFanCountPage(res_search['data'])
-        url_graph_page = domain + target_page['id'] + '?fields=about,cover,fan_count,general_info,link,name,picture&access_token=' + fb_access_token
+
+        url_graph_page = domain + target_page['id'] + '?fields=about,cover,fan_count,general_info,link,name&access_token=' + fb_access_token
         facebook_info = requests.get(url_graph_page).json()
 
+        url_picture_page = domaine + target_page['id']+ '/picture?type=large&access_token' + fb_access_token
+        picture_page = requests.get(url_picture_page).json()['data']
+
+        facebook_info['picture'] = picture_page
         return facebook_info
 
     def getMaxFanCountPage(self, pages) :
