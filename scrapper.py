@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Imports
-import json, wikipedia
+import json, wikipedia, requests
 from wikipedia.exceptions import *
 from googleplaces import GooglePlaces, types, lang
 
@@ -11,6 +11,7 @@ class PlacesScrapper :
     output_places = input_places = []
     google_places = None
     input_file = output_file = ''
+    settings = {}
 
     def __init__(self, input_file='input.json', output_file='output.json') :
         self.input_file = input_file
@@ -18,8 +19,8 @@ class PlacesScrapper :
         self.loadDatas()
 
         with open('settings.json', encoding='utf8') as set_file :
-            settings = json.load(set_file)
-        self.google_places = GooglePlaces(settings["google_api_key"])
+            self.settings = json.load(set_file)
+        self.google_places = GooglePlaces(self.settings["google_api_key"])
 
     def loadDatas(self) :
         with open(self.input_file, encoding='utf8') as input_file :
@@ -35,7 +36,7 @@ class PlacesScrapper :
         for place_name in self.input_places :
             place = self.getGoogleInfo(place_name)
             place['wikipedia'] = self.getWikipediaInfos(place_name)
-
+            place['facebook'] = self.getFacebookPageInfos(place_name)
             self.output_places.append(place)
             self.dumpDatas()
             print(place_name + ' : done !')
@@ -48,11 +49,11 @@ class PlacesScrapper :
             Return a associative array with its id - website - google map url - phone number - address
         """
         results = self.google_places.text_search(name)
-        infos = {}
+        google_infos = {}
 
         if len(results.places) == 0 :
             print(name + ' : Not found by Google Places!')
-            return {}
+            return google_infos
 
         matchObj = {
             'google_id' : 'id',
@@ -66,10 +67,10 @@ class PlacesScrapper :
         place.get_details()
         for el in matchObj :
             try :
-                infos[el] = place.details[matchObj[el]]
+                google_infos[el] = place.details[matchObj[el]]
             except KeyError :
-                infos[el] = False
-        infos['name'] = name;
+                google_infos[el] = False
+        google_infos['name'] = name;
         return infos
 
     def getWikipediaInfos(self, name):
@@ -77,20 +78,45 @@ class PlacesScrapper :
             Collect Wikipedia informations of the place or of the first result of a Wikipedia research
             Return a associative array with its title page - wikipedia url - summmary
         """
-        wiki_info = {}
+        wiki_infos = {}
         results = wikipedia.search(name)
 
         if len(results) == 0 :
-            return wiki_info
             print(name + ' : Not found by Wikipedia !')
+            return wiki_infos
 
         try :
             page = wikipedia.page(name)
         except PageError:
             page = wikipedia.page(results[0])
 
-        wiki_info['title'] = page.title
-        wiki_info['url'] = page.url
-        wiki_info['summary'] = page.summary
+        wiki_infos['title'] = page.title
+        wiki_infos['url'] = page.url
+        wiki_infos['summary'] = page.summary
 
-        return wiki_info
+        return wiki_infos
+
+    def getFacebookPageInfos(self, name) :
+        facebook_info = {}
+        domain = 'https://graph.facebook.com/v2.8/'
+        fb_access_token = self.settings['facebook_api_key']
+
+        url_graph_search = domain +'search?q='+el['name']+'&fields=id,fan_count&type=page&access_token=' + fb_access_token
+        res_search = requests.get(url_graph_search).json()
+
+        if len(res_search) == 0:
+            print(name + ' : Not found by Facebook')
+            return facebook_info
+
+        target_page = getMaxFanCountPage(res_search['data'])
+        url_graph_page = domain + target_page['id'] + '?fields=about,cover,fan_count,general_info,link,name,picture&access_token=' + fb_access_token
+        facebook_info = requests.get(url_graph_page).json()
+
+        return facebook_info
+
+    def getMaxFanCountPage(self, pages) :
+        max_fancount_page = pages[0]
+        for el in pages :
+            if el['fan_count'] > max_fancount_page['fan_count'] :
+                max_fancount_page = el
+        return max_fancount_page
