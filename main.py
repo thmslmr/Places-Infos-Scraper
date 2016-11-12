@@ -53,24 +53,24 @@ class PlacesScrapper :
 
         if len(results.places) == 0 :
             print(name + ' : Not found by Google Places!')
-            return google_infos
+        else :
+            matchObj = {
+                'google_id' : 'id',
+                'website' : 'website',
+                'google_map_url' : 'url',
+                'phone_number' : 'international_phone_number',
+                'formatted_address' : 'formatted_address'
+            }
 
-        matchObj = {
-            'google_id' : 'id',
-            'website' : 'website',
-            'google_map_url' : 'url',
-            'phone_number' : 'international_phone_number',
-            'formatted_address' : 'formatted_address'
-        }
+            place = results.places[0]
+            place.get_details()
+            for el in matchObj :
+                try :
+                    google_infos[el] = place.details[matchObj[el]]
+                except KeyError :
+                    google_infos[el] = False
+            google_infos['name'] = name;
 
-        place = results.places[0]
-        place.get_details()
-        for el in matchObj :
-            try :
-                google_infos[el] = place.details[matchObj[el]]
-            except KeyError :
-                google_infos[el] = False
-        google_infos['name'] = name;
         return google_infos
 
     def getWikipediaInfos(self, name):
@@ -83,16 +83,15 @@ class PlacesScrapper :
 
         if len(results) == 0 :
             print(name + ' : Not found by Wikipedia !')
-            return wiki_infos
+        else :
+            try :
+                page = wikipedia.page(name)
+            except PageError:
+                page = wikipedia.page(results[0])
 
-        try :
-            page = wikipedia.page(name)
-        except PageError:
-            page = wikipedia.page(results[0])
-
-        wiki_infos['title'] = page.title
-        wiki_infos['url'] = page.url
-        wiki_infos['summary'] = page.summary
+            wiki_infos['title'] = page.title
+            wiki_infos['url'] = page.url
+            wiki_infos['summary'] = page.summary
 
         return wiki_infos
 
@@ -101,22 +100,17 @@ class PlacesScrapper :
         domain = 'https://graph.facebook.com/v2.8/'
         fb_access_token = self.settings['facebook_api_key']
 
-        url_graph_search = domain +'search?q='+el['name']+'&fields=id,fan_count&type=page&access_token=' + fb_access_token
+        url_graph_search = domain +'search?q='+name+'&fields=id,fan_count&type=page&access_token=' + fb_access_token
         res_search = requests.get(url_graph_search).json()
 
-        if len(res_search) == 0:
+        if len(res_search['data']) == 0:
             print(name + ' : Not found by Facebook')
-            return facebook_info
+        else :
+            target_page = self.getMaxFanCountPage(res_search['data'])
 
-        target_page = getMaxFanCountPage(res_search['data'])
+            url_graph_page = domain + target_page['id'] + '?fields=about,cover,fan_count,general_info,link,name,picture.type(large)&access_token=' + fb_access_token
+            facebook_info = requests.get(url_graph_page).json()
 
-        url_graph_page = domain + target_page['id'] + '?fields=about,cover,fan_count,general_info,link,name&access_token=' + fb_access_token
-        facebook_info = requests.get(url_graph_page).json()
-
-        url_picture_page = domaine + target_page['id']+ '/picture?type=large&access_token' + fb_access_token
-        picture_page = requests.get(url_picture_page).json()['data']
-
-        facebook_info['picture'] = picture_page
         return facebook_info
 
     def getMaxFanCountPage(self, pages) :
