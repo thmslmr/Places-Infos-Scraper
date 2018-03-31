@@ -13,7 +13,6 @@ class PlaceScraper:
         if not isinstance(services, list):
             raise Exception('Services must be a list.')
 
-        self.places = []
         self.settings = self.__fetch_settings(settings_file)
         self.services = [service for service in services
                          if service in self.settings['services'].keys()]
