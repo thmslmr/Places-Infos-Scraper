@@ -1,4 +1,36 @@
 {
-    "google_api_key" : "YOUR_GOOGLE_PLACES_API_KEY", 
-    "facebook_api_key" : "YOUR_FACEBOOK_API_KEY"
+    "placescrapper" : {
+        "services" : {
+            "facebook" : {
+                "infos" : [
+                    "about",
+                    "cover",
+                    "fan_count",
+                    "general_info",
+                    "link",
+                    "name",
+                    "picture.type(large)"
+                ],
+                "domain" : "https://graph.facebook.com/v2.8/",
+                "api_key" : "YOUR_FACEBOOK_API_KEY"
+            },
+            "wikipedia" : {
+                "infos" : [
+                    "title",
+                    "url",
+                    "summary"
+                ]
+            },
+            "google" : {
+                "infos" : [
+                    "id",
+                    "website",
+                    "url",
+                    "international_phone_number",
+                    "formatted_addres"
+                ],
+                "api_key" : "YOUR_GOOGLE_PLACES_API_KEY"
+            }
+        },
+    }
 }
