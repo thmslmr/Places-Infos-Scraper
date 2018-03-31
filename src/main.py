@@ -109,7 +109,7 @@ class PlaceScraper:
     def scrap(self, places):
         """ Main function """
         if not places:
-            raise Exception('Array of places must be provided.')
+            raise Exception('Places must be provided.')
 
         if not isinstance(places, list):
             places = [places]
