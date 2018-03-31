@@ -4,7 +4,7 @@ import requests
 from googleplaces import GooglePlaces
 
 
-class PlacesScrapper:
+class PlaceScraper:
 
     def __init__(self,
                  services=['facebook', 'wikipedia', 'google'],
@@ -32,10 +32,10 @@ class PlacesScrapper:
             raise Exception('Settings file must be provided.')
 
         try:
-            settings = settings_file['placesscrapper']
+            settings = settings_file['placescrapper']
         except KeyError:
             raise Exception('Settings file must contain \
-            `placesscrapper` settings.')
+            `placescraper` settings.')
 
         return settings
 
@@ -89,7 +89,7 @@ class PlacesScrapper:
         if not name:
             raise Exception('Place name must be provided.')
 
-        domain = self.__get_settings('services.facebook.domain')
+        domain = "https://graph.facebook.com/v2.8/"
         fb_access_token = self.__get_settings('services.facebook.api_key')
 
         search_url = domain + 'search?q=' + name + \
@@ -111,6 +111,9 @@ class PlacesScrapper:
         """ Main function """
         if not places:
             raise Exception('Array of places must be provided.')
+
+        if not isinstance(places, list):
+            places = [places]
 
         return [{"name": place, "infos": {
             service: getattr(self, 'get_{0}_infos'.format(service))(place)
