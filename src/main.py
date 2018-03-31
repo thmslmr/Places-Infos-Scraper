@@ -6,27 +6,25 @@ from googleplaces import GooglePlaces
 
 class PlacesScrapper:
 
-    output_places = input_places = []
-    google_places = None
-    input_file = output_file = ''
-    settings = {}
+    def __init__(self, places):
+        """ Init scrapper """
+        if not places:
+            raise Exception('Array of places must be provided.')
 
-    def __init__(self, input_file='input.json', output_file='output.json'):
-        self.input_file = input_file
-        self.output_file = output_file
-        self.load_datas()
-
-        with open('settings.json', encoding='utf8') as set_file:
-            self.settings = json.load(set_file)
+        self.input_places = places
+        self.output_places = []
+        self.settings = self.__fetch_settings()
         self.google_places = GooglePlaces(self.settings["google_api_key"])
 
-    def load_datas(self):
-        with open(self.input_file, encoding='utf8') as input_file:
-            self.input_places = json.load(input_file)
+    def __fetch_settings(self):
+        """ Fetch settings from settings.json"""
+        try:
+            with open('settings.json', 'r') as file:
+                settings = json.load(file)
+        except FileNotFoundError:
+            raise Exception('Sources file must be provided.')
 
-    def dump_datas(self):
-        with open(self.output_file, 'w', encoding='utf8') as output_file:
-            json.dump(self.output_places, output_file, ensure_ascii=False)
+        return settings
 
     def scrap(self):
         print("==== START ====")
