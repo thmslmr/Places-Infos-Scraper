@@ -1,6 +1,6 @@
 # Places Infos Scrapper
 
-Get information from a location or a list of locations.
+**Get information from a location or a list of locations.**
 
 Services currently supported:
   - Facebook
