@@ -3,9 +3,9 @@
 Get information from a location or a list of locations.
 
 Services currently supported:
-    - Facebook
-    - Wikipedia
-    - Google places
+  - Facebook
+  - Wikipedia
+  - Google places
 
 Default configuration includes these three platforms.
 
