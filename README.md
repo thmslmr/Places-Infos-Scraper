@@ -1,11 +1,13 @@
 # Places Infos Scrapper
 
-Recupérer les informations sur different service d'un lieu ou d'une liste de lieu.
+Get information from a location or a list of locations.
 
-Services actuellement disponible:
-    - facebook
-    - wikipedia
+Services currently supported:
+    - Facebook
+    - Wikipedia
     - Google places
+
+Default configuration includes these three platforms.
 
 Dependencies
 ---
@@ -17,7 +19,7 @@ Settings
 ---
 
 Insert your GooglePlaces and Facebook Graph API key in the `settings.json` file.  
-Vous pouvez aussi modifier les champs que vous souhaitez récupérer pour chaque services.
+You can also edit the field you wish to find for each service.
 
 Examples of use
 ---
@@ -25,6 +27,6 @@ Examples of use
 ```python
     scraper = PlaceScraper()
 
-    places = ['Paris', 'Tour Eiffel', 'Central Parc']
+    places = ['Paris', 'Eiffel Tower', 'Central Park']
     infos = scraper.scrap(places)
 ```
